@@ -44,13 +44,13 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
 
     chunk.msgpack_each do |tag, time, record|
 
-      if @logstash_format
+      if @add_timestamp
         record.merge!({@timestamp_key => Time.at(time).to_datetime.to_s})
+      end
+
+      if @logstash_format
         target_index = "#{@logstash_prefix}-#{Time.at(time).getutc.strftime("#{@logstash_dateformat}")}"
       else
-        if @add_timestamp
-          record.merge!({@timestamp_key => Time.at(time).to_datetime.to_s})
-        end
         target_index = @index_name
       end
 
