@@ -47,6 +47,8 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
     bulk_message = []
 
     chunk.msgpack_each do |tag, time, record|
+      next if record.nil?
+      next if time.nil?
 
       if @add_timestamp
         record.merge!(@timestamp_key => Time.at(time).to_datetime.to_s)
@@ -67,6 +69,7 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
       bulk_message << Yajl::Encoder.encode(meta)
       bulk_message << Yajl::Encoder.encode(record)
     end
+    return if bulk_message.empty?
     bulk_message << ''
 
     http = Net::HTTP.new(@host, @port.to_i)
